@@ -40,7 +40,12 @@ Las rutas dentro del router no incluyen /api/alumnos porque esa parte ya la defi
 
 **7.** En `server-noob-mejorada.js`, el archivo principal tiene solo ~26 líneas. ¿Qué responsabilidad tiene ese archivo ahora? ¿Dónde está la lógica de los endpoints?
 
+El archivo server-noob-mejorada.js solo tiene responsabilidades de arranque y configuración: crea la app Express, agrega los middlewares, registra los routers con sus prefijos, y llama a app.listen(). No contiene ninguna lógica de SQL ni las de negocio.
+La lógica de los endpoints vive en router/alumnos-router-noob.js y router/cursos-router-noob.js.
+
 **8.** En la versión mejorada desaparece el bloque `finally`. ¿Por qué ya no es necesario cerrar la conexión manualmente al usar `Pool`?
+
+Con Pool, el desarrollador nunca llama a connect() ni a end() manualmente. Cuando se hace pool.query(sql), el pool internamente toma una conexión disponible, ejecuta la query, y la devuelve al pool solo. Si la query falla, el pool devuelve la conexión igual. No hay nada que cerrar desde afuera, así que el finally no tiene sentido que este.
 
 ---
 
@@ -48,13 +53,30 @@ Las rutas dentro del router no incluyen /api/alumnos porque esa parte ya la defi
 
 **9.** Nombrá las tres capas de la arquitectura y explicá con tus palabras qué responsabilidad tiene cada una. ¿Cuál conoce los `req` y `res` de Express? ¿Cuál conoce el SQL? ¿Cuál tiene las reglas de negocio?
 
+Controller: es el único que conoce req y res de Express. Recibe el request HTTP, extrae los datos (req.params, req.body), llama al service correspondiente, y responde con el status code adecuado.
+Service: contiene las reglas de negocio. Valida datos, aplica cálculos, coordina con otros services.
+Repository: es el único que conoce el SQL y la base de datos. Ejecuta queries contra PostgreSQL y devuelve los resultados.
+
 **10.** En `alumnos-service.js`, la edad del alumno se calcula en el service con una función JavaScript, en vez de calcularla en la query SQL. ¿Por qué se eligió calcularla en el service y no en la base de datos?
+
+Podría calcularse en SQL, pero eso mezcla lógica de negocio dentro de la query. Si mañana la regla cambia, hay que modificar el SQL del repository en lugar de cambiar una función en JavaScript.
+Además, la edad calculada en JavaScript se puede probar en forma aislada, sin necesidad de una base de datos. El service también puede agregar la edad a cualquier alumno que venga de cualquier fuente, no solo de una query SQL específica.
 
 **11.** Cuando se crea un alumno con un `id_curso` que no existe, `AlumnosService` llama a `CursosService` para verificarlo. ¿Por qué llama al service de cursos y no directamente al repository de cursos?
 
+Si AlumnosService llamara directamente a CursosRepository, estaría saltando una capa y accediendo a los datos de cursos sin pasar por la lógica de negocio de cursos. Si mañana CursosService agrega alguna regla, esa regla no se aplicaría en la validación de alumnos.
+Llamando a CursosService.getByIdAsync(), se respeta la encapsulación: cualquier regla que tenga el service de cursos se aplica automáticamente. La arquitectura en capas implica que cada capa solo habla con su capa adyacente hacia abajo.
+
 **12.** ¿Para qué sirve el archivo `.env` y la librería `dotenv`? ¿Qué problema de las versiones anteriores resuelve? ¿Por qué el archivo `.env` no se sube al repositorio de Git?
 
+El archivo .env almacena variables de entorno: credenciales de la base de datos, puerto del servidor, configuración de logs. La librería dotenv carga esas variables al process.env de Node cuando arranca la aplicación.
+Resuelve dos problemas de las versiones anteriores: las credenciales estaban hardcodeadas en db-config.js, y el puerto estaba fijo en 3000.
+El .env no se sube a Git porque contiene información sensible que no debería estar en un repositorio, especialmente si es público. En su lugar, se sube un .env-template con los nombres de las variables pero sin valores reales, para que cada desarrollador sepa qué variables configurar localmente.
+
 **13.** ¿Qué hace `LogHelper` y por qué es mejor que usar `console.log(error)` suelto en cada lugar del código?
+
+LogHelper centraliza el comportamiento de logging. Según la configuración del .env, puede escribir los errores en un archivo de log con timestamp, mostrarlos en consola, ambas cosas, o ninguna. Además formatea el error con nombre, mensaje y stack trace completo.
+Con console.log(error) suelto en cada lugar del código, si hay que cambiar cómo se loguean los errores, hay que buscar y modificar cada console.log en todos los archivos. Con LogHelper, ese cambio se hace en un solo lugar y afecta a todo el sistema. También aplica el principio DRY: la lógica de logging no se repite.
 
 ---
 
