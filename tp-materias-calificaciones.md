@@ -58,9 +58,9 @@ Siguiendo la estructura del proyecto, crear estos archivos:
 
 | Capa | Archivo | Responsabilidad |
 |------|---------|-----------------|
-| Entity | `src/entities/materia.js` | Clase `Materia` |
-| Entity | `src/entities/calificacion.js` | Clase `Calificacion` |
-| Repository | `src/repositories/materias-repository.js` | SQL contra la tabla `materias` |
+| Entity | `src/entities/materia.js` | Clase `Materia` | 
+| Entity | `src/entities/calificacion.js` | Clase `Calificacion` | 
+| Repository | `src/repositories/materias-repository.js` | SQL contra la tabla `materias` | 
 | Repository | `src/repositories/calificaciones-repository.js` | SQL contra la tabla `calificaciones` (incluye JOINs) |
 | Service | `src/services/materias-service.js` | Lógica de negocio de materias |
 | Service | `src/services/calificaciones-service.js` | Lógica de negocio de calificaciones (validaciones) |
