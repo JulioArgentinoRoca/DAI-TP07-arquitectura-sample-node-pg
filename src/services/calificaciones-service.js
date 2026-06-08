@@ -17,5 +17,10 @@ export default class CalificacionesService {
         const returnEntity = await this.CalificacionesRepository.getByIdAsync(id);
         return returnEntity;
     }
-}
 
+    getByAlumnoIdAsync = async (id) => {
+        console.log(`CalificacionesService.getByAlumnoIdAsync(${id})`);
+        const returnEntity = await this.CalificacionesRepository.getByAlumnoIdAsync(id);
+        return returnEntity;
+    }
+}

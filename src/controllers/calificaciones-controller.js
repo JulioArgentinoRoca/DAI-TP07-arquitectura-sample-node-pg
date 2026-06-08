@@ -36,6 +36,24 @@ router.get('/:id', async (req, res) => {
 });
 
 
+router.get('/alumno/:id', async (req, res) => {
+    try {
+        let id = req.params.id;
+        const returnEntity = await currentService.getByAlumnoIdAsync(id);
+        if (returnEntity != null){
+            res.status(StatusCodes.OK).json(returnEntity);
+        } else {
+            res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad alumno (id:${id}).`);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    }
+});
+
+
+//getByAlumnoIdAsync
+
 /**
  
 router.get('/:id', async (req, res) => {
