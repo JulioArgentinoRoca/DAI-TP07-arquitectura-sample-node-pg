@@ -67,7 +67,7 @@ export default class CalificacionesRepository {
             const values = [id];
             const resultPg = await this.getDBPool().query(sql, values);
             if (resultPg.rows.length > 0){
-                returnEntity = resultPg.rows[0];
+                returnEntity = resultPg.rows;
             }
         } catch (error) {
             LogHelper.logError(error);
