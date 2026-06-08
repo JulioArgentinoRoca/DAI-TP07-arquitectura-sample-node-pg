@@ -11,5 +11,11 @@ export default class CalificacionesService {
         const returnArray = await this.CalificacionesRepository.getAllAsync();
         return returnArray;
     }
+
+    getByIdAsync = async (id) => {
+        console.log(`CalificacionesService.getByIdAsync(${id})`);
+        const returnEntity = await this.CalificacionesRepository.getByIdAsync(id);
+        return returnEntity;
+    }
 }
 

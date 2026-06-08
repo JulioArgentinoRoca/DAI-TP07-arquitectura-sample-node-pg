@@ -41,7 +41,10 @@ export default class CalificacionesRepository {
         console.log(`CalificacionesRepository.getByIdAsync(${id})`);
         let returnEntity = null;
         try {
-            const sql = `SELECT * FROM calificaciones WHERE id=$1`;
+            const sql = `SELECT calificaciones.id, calificaciones.id_alumno, alumnos.nombre as nombre_alumno, alumnos.apellido as apellido_alumno,
+            calificaciones.id_materia, materias.nombre as nombre_materia, calificaciones.nota, calificaciones.fecha
+            FROM calificaciones INNER JOIN materias ON materias.id = calificaciones.id_materia
+            INNER JOIN alumnos ON alumnos.id = calificaciones.id_alumno WHERE calificaciones.id=$1`;
             const values = [id];
             const resultPg = await this.getDBPool().query(sql, values);
             if (resultPg.rows.length > 0){
