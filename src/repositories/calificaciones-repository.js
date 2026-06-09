@@ -75,15 +75,29 @@ export default class CalificacionesRepository {
         return returnEntity;
     }
 
-
+    getByAlumnoAndMateriaAsync = async (id_alumno, id_materia) => {
+        console.log(`CalificacionesRepository.getByAlumnoAndMateriaAsync(${id_alumno}, ${id_materia})`);
+        let returnEntity = null;
+        try {
+            const sql = `SELECT * FROM calificaciones WHERE id_alumno = $1 AND id_materia = $2`;
+            const values = [id_alumno, id_materia];
+            const resultPg = await this.getDBPool().query(sql, values);
+            if (resultPg.rows.length > 0){
+                returnEntity = resultPg.rows;
+            }
+        } catch (error) {
+            LogHelper.logError(error);
+        }
+        return returnEntity;
+    }
 
     createAsync = async (entity) => {
         console.log(`CalificacionesRepository.createAsync(${JSON.stringify(entity)})`);
         let newId = 0;
 
         try {
-            const sql = `INSERT INTO calificaciones (nombre) VALUES ($1) RETURNING id`;
-            const values = [entity?.nombre ?? ''];
+            const sql = `INSERT INTO calificaciones (id_alumno, id_materia, nota, fecha) VALUES ($1, $2, $3, $4) RETURNING *`;
+            const values = [entity?.id_alumno, entity?.id_materia, entity?.nota, (entity?.fecha || new Date())];
             const resultPg = await this.getDBPool().query(sql, values);
             newId = resultPg.rows[0].id;
         } catch (error) {
