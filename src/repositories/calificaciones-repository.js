@@ -2,17 +2,17 @@ import pkg from 'pg'
 import config from './../configs/db-config.js';      // Traigo la configuracion de la base de datos.
 import LogHelper from './../helpers/log-helper.js'
 
-const { Pool }  = pkg;
+const { Pool } = pkg;
 
 export default class CalificacionesRepository {
     constructor() {
         // Se ejecuta siempre, (al instanciar la clase)
         console.log('Estoy en: CalificacionesRepository.constructor()');
-        this.DBPool     = null;
+        this.DBPool = null;
     }
 
     getDBPool = () => {
-        if (this.DBPool == null){
+        if (this.DBPool == null) {
             this.DBPool = new Pool(config);
         }
         return this.DBPool;
@@ -21,7 +21,7 @@ export default class CalificacionesRepository {
     getAllAsync = async () => {
         console.log(`CalificacionesRepository.getAllAsync()`);
         let returnArray = null;
-        
+
         try {
             const sql = `SELECT calificaciones.id, calificaciones.id_alumno, alumnos.nombre as nombre_alumno, alumnos.apellido as apellido_alumno,
             calificaciones.id_materia, materias.nombre as nombre_materia, calificaciones.nota, calificaciones.fecha
@@ -35,7 +35,7 @@ export default class CalificacionesRepository {
         return returnArray;
     }
 
-    
+
 
     getByIdAsync = async (id) => {
         console.log(`CalificacionesRepository.getByIdAsync(${id})`);
@@ -47,7 +47,7 @@ export default class CalificacionesRepository {
             INNER JOIN alumnos ON alumnos.id = calificaciones.id_alumno WHERE calificaciones.id=$1`;
             const values = [id];
             const resultPg = await this.getDBPool().query(sql, values);
-            if (resultPg.rows.length > 0){
+            if (resultPg.rows.length > 0) {
                 returnEntity = resultPg.rows[0];
             }
         } catch (error) {
@@ -66,7 +66,7 @@ export default class CalificacionesRepository {
             WHERE calificaciones.id_alumno=$1`;
             const values = [id];
             const resultPg = await this.getDBPool().query(sql, values);
-            if (resultPg.rows.length > 0){
+            if (resultPg.rows.length > 0) {
                 returnEntity = resultPg.rows;
             }
         } catch (error) {
@@ -82,7 +82,7 @@ export default class CalificacionesRepository {
             const sql = `SELECT * FROM calificaciones WHERE id_alumno = $1 AND id_materia = $2`;
             const values = [id_alumno, id_materia];
             const resultPg = await this.getDBPool().query(sql, values);
-            if (resultPg.rows.length > 0){
+            if (resultPg.rows.length > 0) {
                 returnEntity = resultPg.rows;
             }
         } catch (error) {
@@ -112,9 +112,19 @@ export default class CalificacionesRepository {
         let id = entity.id;
 
         try {
-            const sql = `UPDATE calificaciones SET nombre = $2 WHERE id = $1`;
-            const values = [id, entity?.nombre ?? ''];
+            const previousEntity = await this.getByIdAsync(id);
+            if (previousEntity == null) return 0;
+            const sql = `UPDATE calificaciones SET 
+                                nota              = $2, 
+                                fecha            = $3
+                            WHERE id = $1`;
+
+            const values = [id,     
+                entity?.nota ?? previousEntity?.nota,
+                entity?.fecha ?? previousEntity?.fecha,
+            ];
             const resultPg = await this.getDBPool().query(sql, values);
+
             rowsAffected = resultPg.rowCount;
         } catch (error) {
             LogHelper.logError(error);

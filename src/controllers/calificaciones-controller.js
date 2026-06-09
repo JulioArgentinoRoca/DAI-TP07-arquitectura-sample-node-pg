@@ -77,21 +77,6 @@ router.post('', async (req, res) => {
 /**
  
 
-router.post('', async (req, res) => {
-    try {
-        let entity = req.body;
-        const newId = await currentService.createAsync(entity);
-        if (newId > 0 ){
-            res.status(StatusCodes.CREATED).json(newId);
-        } else {
-            res.status(StatusCodes.BAD_REQUEST).json(null);
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(StatusCodes.BAD_REQUEST).send(`Error: ${error.message}`);
-    }
-});
-
 router.put('/:id', async (req, res) => {
     try {
         let id = parseInt(req.params.id);
