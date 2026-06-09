@@ -30,10 +30,8 @@ export default class CalificacionesService {
     }
 
     createAsync = async (entity) =>{
-        const NOTA_MAXIMA=10
-        const NOTA_MINIMA=0
         console.log(`CalificacionesService.createAsync(${JSON.stringify(entity)})`);
-        if(!(entity.nota < NOTA_MAXIMA && entity.nota > NOTA_MINIMA)){throw new Error(`La nota debe ser un número entero entre ${NOTA_MINIMA} y ${NOTA_MAXIMA}.`)}
+        if(!(this.notaIsValid(entity.nota))){throw new Error(`La nota debe ser un número entero entre 0 y 10.`)}
 
         
         if(!(await this.alumnoExists(entity.id_alumno))){throw new Error(`El alumno con id ${entity.id_alumno} no existe.`)}
@@ -49,15 +47,21 @@ export default class CalificacionesService {
 
     updateAsync = async (entity) => {
         console.log(`CalificacionesService.updateAsync(${JSON.stringify(entity)})`);
-        
-        if (entity.id_curso) {
-            await this.validarCursoExiste(entity.id_curso);
-        }
-        
-        const rowsAffected = await this.AlumnosRepository.updateAsync(entity);
+        if(!(await this.CalificacionesRepository.getByIdAsync(entity.id))){throw new Error(`No se encontró la calificación (id: ${entity.id}).`)}
+
+        if(entity.nota != null && !(this.notaIsValid(entity.nota))){throw new Error(`La nota debe ser un número entero entre 0 y 10.`)}
+
+        const rowsAffected = await this.CalificacionesRepository.updateAsync(entity);
         return rowsAffected;
     }
 
+
+    notaIsValid = async(nota) =>{
+        const NOTA_MAXIMA=10
+        const NOTA_MINIMA=0
+        return (nota < NOTA_MAXIMA && nota > NOTA_MINIMA)
+    }
+    
     alumnoExists = async (idAlumno) =>{
         if(!idAlumno){return false}
         const alumno = await this.AlumnosService.getByIdAsync(idAlumno)

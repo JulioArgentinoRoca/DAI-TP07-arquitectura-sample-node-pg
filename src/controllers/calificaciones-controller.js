@@ -72,6 +72,33 @@ router.post('', async (req, res) => {
     }
 });
 
+
+router.put('/:id', async (req, res) => {
+    try {
+        let id = parseInt(req.params.id);
+        let entity = req.body;
+
+        if (entity.id && parseInt(entity.id) !== id) {
+            return res.status(StatusCodes.BAD_REQUEST).send(`El id de la URL (${id}) no coincide con el id del body (${entity.id}).`);
+        }
+
+        entity.id = id;
+        const rowsAffected = await currentService.updateAsync(entity);
+        if (rowsAffected != 0){
+            res.status(StatusCodes.OK).json(rowsAffected);
+        } else {
+            res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad (id:${id}).`);
+        }
+    } catch (error) {
+        console.log(error);
+        if(/No se encontró la calificación (id: \d+).\./.test(error.message)){
+            res.status(StatusCodes.NOT_FOUND).send(`Error: ${error.message}`);
+        }else{
+        res.status(StatusCodes.BAD_REQUEST).send(`Error: ${error.message}`);
+        }
+    }
+});
+
 //getByAlumnoIdAsync
 
 /**
