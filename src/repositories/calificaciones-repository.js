@@ -137,7 +137,7 @@ export default class CalificacionesRepository {
         let rowsAffected = 0;
 
         try {
-            const sql = `DELETE FROM materias WHERE id=$1`;
+            const sql = `DELETE FROM calificaciones WHERE id=$1`;
             const values = [id];
             const resultPg = await this.getDBPool().query(sql, values);
             rowsAffected = resultPg.rowCount;

@@ -32,7 +32,6 @@ export default class CalificacionesService {
     createAsync = async (entity) =>{
         console.log(`CalificacionesService.createAsync(${JSON.stringify(entity)})`);
         if(!(this.notaIsValid(entity.nota))){throw new Error(`La nota debe ser un número entero entre 0 y 10.`)}
-
         
         if(!(await this.alumnoExists(entity.id_alumno))){throw new Error(`El alumno con id ${entity.id_alumno} no existe.`)}
         
@@ -52,6 +51,12 @@ export default class CalificacionesService {
         if(entity.nota != null && !(this.notaIsValid(entity.nota))){throw new Error(`La nota debe ser un número entero entre 0 y 10.`)}
 
         const rowsAffected = await this.CalificacionesRepository.updateAsync(entity);
+        return rowsAffected;
+    }
+
+    deleteByIdAsync = async (id) => {
+        console.log(`CalificacionesService.deleteByIdAsync(${id})`);
+        const rowsAffected = await this.CalificacionesRepository.deleteByIdAsync(id);
         return rowsAffected;
     }
 

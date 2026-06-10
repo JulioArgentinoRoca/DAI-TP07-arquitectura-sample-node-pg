@@ -99,6 +99,21 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        let id = req.params.id;
+        const rowCount = await currentService.deleteByIdAsync(id);
+        if (rowCount != 0){
+            res.status(StatusCodes.OK).json(null);
+        } else {
+            res.status(StatusCodes.NOT_FOUND).send(`No existe la calificación (id:${id}).`);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
+    }
+});
+
 //getByAlumnoIdAsync
 
 /**
@@ -126,20 +141,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
-    try {
-        let id = req.params.id;
-        const rowCount = await currentService.deleteByIdAsync(id);
-        if (rowCount != 0){
-            res.status(StatusCodes.OK).json(null);
-        } else {
-            res.status(StatusCodes.NOT_FOUND).send(`No se encontro la entidad (id:${id}).`);
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(`Error: ${error.message}`);
-    }
-});
+
  */
 
 export default router;
